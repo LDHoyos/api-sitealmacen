@@ -15,7 +15,7 @@ export class ProductoVentaController {
 
     public async getAllVentaProducto(req: Request, res: Response) {
         try {
-            const ventas_producto: Venta_ProductoI[] = await Venta_Producto.findAll();
+            const ventas_producto: Venta_ProductoI[] = await Venta_Producto.findAll({where:{active:true}});
 
             res.json({ ventas_producto });
         } catch (error) {
@@ -27,7 +27,7 @@ export class ProductoVentaController {
     public async getOneVentaProducto(req: Request, res: Response) {
         try {
             const { producto_id, venta_id } = req.params;
-            let venta_producto: Venta_ProductoI | null = await Venta_Producto.findOne({ where: { producto_id, venta_id }  })
+            let venta_producto: Venta_ProductoI | null = await Venta_Producto.findOne({ where: { producto_id, venta_id, active:true }  })
 
             if (venta_producto) {
                 res.status(200).json(venta_producto)
@@ -43,7 +43,7 @@ export class ProductoVentaController {
     public async getAllProductoV(req: Request, res: Response) {
         try {
             const { producto_id } = req.params;
-            let productoV: Venta_ProductoI[] | null = await Venta_Producto.findAll({ where: { producto_id }  })
+            let productoV: Venta_ProductoI[] | null = await Venta_Producto.findAll({ where: { producto_id,active:true }  })
 
             if (productoV) {
                 res.status(200).json({productoV})
@@ -59,7 +59,7 @@ export class ProductoVentaController {
     public async getAllVentasP(req: Request, res: Response) {
         try {
             const { venta_id } = req.params;
-            let ventasP: Venta_ProductoI[] | null = await Venta_Producto.findAll({ where: { venta_id }  })
+            let ventasP: Venta_ProductoI[] | null = await Venta_Producto.findAll({ where: { venta_id,active:true }  })
 
             if (ventasP) {
                 res.status(200).json({ventasP})
@@ -87,7 +87,8 @@ export class ProductoVentaController {
                 precio,
                 total,
                 venta_id,
-                producto_id
+                producto_id,
+                active:true
             }
 
             const venta_producto: Venta_ProductoI = await Venta_Producto.create({ ...body });
@@ -104,7 +105,7 @@ export class ProductoVentaController {
         const {producto_id:p_key,venta_id:v_key} = req.params;
 
         try {
-            const venta_productoExist: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key}})
+            const venta_productoExist: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key,active:true}})
 
             if (!venta_productoExist) return res.status(500).json({ msg: "El Venta Producto No existe" })
             await Venta_Producto.destroy(
@@ -112,12 +113,42 @@ export class ProductoVentaController {
                     where: {producto_id:p_key,venta_id:v_key}
                 }
             )
-            res.status(200).json({ msg: "Venta Producto Eliminado" })
+            const venta_producto: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key,active:true}})
+            if (venta_producto) return res.status(200).json({ msg: "Venta Producto Eliminado",venta_producto })
         } catch (error) {
 
         }
 
     }
+
+    public async deleteVentaProductoPatch(req: Request, res: Response) {
+        const { producto_id: p_key, venta_id: v_key } = req.params;
+    
+        try {
+            const venta_productoExist: Venta_ProductoI | null = await Venta_Producto.findOne({
+                where: { producto_id: p_key, venta_id: v_key, active: true }
+            });
+    
+            if (!venta_productoExist) {
+                return res.status(500).json({ msg: "El Venta Producto No existe" });
+            }
+    
+            // Eliminación suave: Establece 'active' en false
+            await Venta_Producto.update({ active: false }, { where: { producto_id: p_key, venta_id: v_key } });
+    
+            const venta_producto: Venta_ProductoI | null = await Venta_Producto.findOne({
+                where: { producto_id: p_key, venta_id: v_key, active: true }
+            });
+    
+            if (venta_producto) {
+                return res.status(200).json({ msg: "Venta Producto ocultado (eliminación suave)", venta_producto });
+            }
+        } catch (error) {
+            console.error("Error en deleteVentaProducto:", error);
+            res.status(500).json({ mensaje: "Ocurrió un error en el servidor" });
+        }
+    }
+    
     public async updateVenta(req: Request, res: Response) {
         const { producto_id:p_key, venta_id:v_key } = req.params;
 
@@ -136,10 +167,11 @@ export class ProductoVentaController {
                 precio,
                 total,
                 venta_id,
-                producto_id
+                producto_id,
+                active:true
             }
 
-            const venta_ProductoExist: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key}})
+            const venta_ProductoExist: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key,active:true}})
 
             if (!venta_ProductoExist) return res.status(500).json({ msg: "la Venta Producto No existe" })
             await Venta_Producto.update(
@@ -153,7 +185,7 @@ export class ProductoVentaController {
         } catch (error) {
 
         }
-        const venta_producto: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key}})
+        const venta_producto: Venta_ProductoI | null = await Venta_Producto.findOne({where:{producto_id:p_key,venta_id:v_key,active:true}})
 
         if (venta_producto) return res.status(200).json({ venta_producto })
 

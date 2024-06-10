@@ -10,6 +10,7 @@ export class Venta_Producto extends Model {
     public total!: number;
     public producto_id!:number;
     public venta_id!:number;
+    public active!:boolean;
 }
 
 export interface Venta_ProductoI {
@@ -18,6 +19,7 @@ export interface Venta_ProductoI {
     total: number;
     producto_id:number;
     venta_id:number;
+    active:boolean;
 }
 
 Venta_Producto.init({
@@ -33,6 +35,10 @@ Venta_Producto.init({
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    active:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+      }
 }, {
     tableName: 'ventas_productos',
     sequelize: database,

@@ -15,7 +15,7 @@ export class TipoProductoController {
 
     public async getAllTipoProducto(req: Request, res: Response) {
         try {
-            const tipoProducto: TipoProductoI[] = await TipoProducto.findAll();
+            const tipoProducto: TipoProductoI[] = await TipoProducto.findAll({where:{active:true}});
 
             res.json({ tipoProducto });
         } catch (error) {
@@ -27,7 +27,7 @@ export class TipoProductoController {
     public async getOneCliente(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const tipoProducto: TipoProductoI | null = await TipoProducto.findOne({ where: { id } })
+            const tipoProducto: TipoProductoI | null = await TipoProducto.findOne({ where: { id,active:true } })
 
             if (tipoProducto) {
                 res.status(200).json(tipoProducto)
@@ -47,7 +47,8 @@ export class TipoProductoController {
 
         try {
             let body: TipoProductoI = {
-                name
+                name,
+                active:true
             }
 
             const tipoProducto: TipoProductoI = await TipoProducto.create({ ...body });
@@ -68,15 +69,36 @@ export class TipoProductoController {
             if (!tipoProductoExist) return res.status(500).json({ msg: "El TipoProducto No existe" })
             await TipoProducto.destroy(
                 {
-                    where: { id }
+                    where: { id,active:true }
                 }
             )
-            res.status(200).json({ msg: "TipoProducto Eliminado" })
+            const tipoProducto: TipoProductoI | null = await TipoProducto.findByPk(id);
+            if (TipoProducto) res.status(200).json({ msg: "TipoProducto Eliminado" })
         } catch (error) {
 
         }
 
     }
+
+    public async deleteTipoProductoPatch(req: Request, res: Response) {
+        const { id } = req.params;
+    
+        try {
+            const tipoProductoExist: TipoProductoI | null = await TipoProducto.findByPk(id);
+            if (!tipoProductoExist) {
+                return res.status(500).json({ msg: "El Tipo de Producto No existe" });
+            }
+    
+            // Eliminación suave: Establece 'active' en false
+            await TipoProducto.update({ active: false }, { where: { id } });
+    
+            res.status(200).json({ msg: "Tipo de Producto ocultado (eliminación suave)" });
+        } catch (error) {
+            console.error("Error en deleteTipoProducto:", error);
+            res.status(500).json({ mensaje: "Ocurrió un error en el servidor" });
+        }
+    }
+    
     public async updateTipoProducto(req: Request, res: Response) {
         const { id } = req.params;
 
@@ -87,7 +109,8 @@ export class TipoProductoController {
 
         try {
             let body: TipoProductoI = {
-                name
+                name,
+                active:true
             }
 
             const tipoProductoExist: TipoProductoI | null = await TipoProducto.findByPk(id)

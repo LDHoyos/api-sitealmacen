@@ -11,9 +11,10 @@ export class VentaRoutes{
     private initializeRoutes(){
         this.router.get("/ventas/test",this.ventasController.test);
         this.router.get("/ventas",this.ventasController.getAllVenta)
-        this.router.get("/venta/:id",this.ventasController.getOneVenta)
-        this.router.post("/venta",this.ventasController.createVenta)
-        this.router.put("/venta/:id",this.ventasController.updateVenta)
-        this.router.delete("/venta/:id",this.ventasController.deleteVenta)
+        this.router.get("/ventas/:id",this.ventasController.getOneVenta)
+        this.router.post("/ventas",this.ventasController.createVenta)
+        this.router.put("/ventas/:id",this.ventasController.updateVenta)
+        this.router.delete("/ventas/:id",this.ventasController.deleteVenta)
+        this.router.patch("/ventas/:id",this.ventasController.deleteVentaPatch)
     }
 }

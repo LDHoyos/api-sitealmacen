@@ -16,7 +16,7 @@ export class VentasController {
 
     public async getAllVenta(req: Request, res: Response) {
         try {
-            const ventas: VentaI[] = await Venta.findAll() // select * from Ventas;
+            const ventas: VentaI[] = await Venta.findAll({where:{active:true}}) // select * from Ventas;
             res.status(200).json({ ventas })
         } catch (error) {
             console.error("Error en getAllVenta:", error);
@@ -27,7 +27,7 @@ export class VentasController {
     public async getOneVenta(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const venta: Venta | null = await Venta.findOne({ where: { id } })
+            const venta: Venta | null = await Venta.findOne({ where: { id,active:true } })
 
             if (venta) {
                 res.status(200).json(venta)
@@ -58,7 +58,8 @@ export class VentasController {
                 impuestos,
                 descuentos,
                 total,
-                ClienteId
+                ClienteId,
+                active:true
             }
 
             const venta: VentaI = await Venta.create({ ...body });
@@ -79,15 +80,36 @@ export class VentasController {
             if (!VentaExist) return res.status(500).json({ msg: "El Venta No existe" })
             await Venta.destroy(
                 {
-                    where: { id }
+                    where: { id,active:true }
                 }
             )
-            res.status(200).json({ msg: "Venta Eliminado" })
+            const venta: VentaI | null = await Venta.findByPk(id);
+        if (Venta) res.status(200).json({ msg: "Venta Eliminado" })
         } catch (error) {
 
         }
 
     }
+
+    public async deleteVentaPatch(req: Request, res: Response) {
+        const { id } = req.params;
+    
+        try {
+            const VentaExist: VentaI | null = await Venta.findByPk(id);
+            if (!VentaExist) {
+                return res.status(500).json({ msg: "El Venta No existe" });
+            }
+    
+            // Eliminación suave: Establece 'active' en false
+            await Venta.update({ active: false }, { where: { id } });
+    
+            res.status(200).json({ msg: "Venta ocultada (eliminación suave)" });
+        } catch (error) {
+            console.error("Error en deleteVenta:", error);
+            res.status(500).json({ mensaje: "Ocurrió un error en el servidor" });
+        }
+    }
+    
     public async updateVenta(req: Request, res: Response) {
         const { id } = req.params;
 
@@ -108,7 +130,8 @@ export class VentasController {
                 impuestos,
                 descuentos,
                 total,
-                ClienteId
+                ClienteId,
+                active:true
             }
 
             const VentaExist: VentaI | null = await Venta.findByPk(id)

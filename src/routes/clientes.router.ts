@@ -14,9 +14,10 @@ export class ClienteRoutes {
     private initializeRoutes(){
         this.router.get("/clientes/test", this.clienteController.test)
         this.router.get("/clientes",this.clienteController.getAllCliente)
-        this.router.get("/cliente/:id",this.clienteController.getOneCliente)
-        this.router.post("/cliente",this.clienteController.createCliente)
-        this.router.delete("/cliente/:id",this.clienteController.deleteCliente)
-        this.router.put("/cliente/:id",this.clienteController.updateCliente)
+        this.router.get("/clientes/:id",this.clienteController.getOneCliente)
+        this.router.post("/clientes",this.clienteController.createCliente)
+        this.router.delete("/clientes/:id",this.clienteController.deleteCliente)
+        this.router.patch("/clientes/:id",this.clienteController.deleteClientePatch)
+        this.router.put("/clientes/:id",this.clienteController.updateCliente)
     }
 }

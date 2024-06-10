@@ -8,7 +8,8 @@ export class Venta extends Model {
     public impuestos!: number;
     public descuentos!: number;
     public total!: number;
-    public ClienteId!:number
+    public ClienteId!:number;
+    public active!:boolean;
 }
 
 export interface VentaI {
@@ -18,6 +19,7 @@ export interface VentaI {
     descuentos: number;
     total: number;
     ClienteId:number;
+    active:boolean;
 }
 
 Venta.init({
@@ -40,7 +42,11 @@ Venta.init({
     total: {
         type: DataTypes.FLOAT,
         allowNull: false
-    }
+    },
+    active:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+      }
 }, {
     tableName: 'ventas',
     sequelize: database,

@@ -8,10 +8,12 @@ export class Producto extends Model {
     public stockMin!: number;
     public cantidad!: number;
     public TipoProductoId!:number;
+    public active!:boolean;
 }
 
 export class TipoProducto extends Model {
     public name!: string;
+    public active!:boolean;
 }
 
 export interface ProductoI {
@@ -21,10 +23,12 @@ export interface ProductoI {
     stockMin: number;
     cantidad: number;
     TipoProductoId:number;
+    active:boolean;
 }
 
 export interface TipoProductoI {
     name: string;
+    active:boolean;
 }
 
 
@@ -49,7 +53,11 @@ Producto.init(
         cantidad:{
             type: DataTypes.INTEGER,
             allowNull: false,
-        }
+        },
+        active:{
+            type:DataTypes.BOOLEAN,
+            defaultValue:false
+          }
     },
     {
         sequelize: database,
@@ -63,7 +71,11 @@ TipoProducto.init(
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-        }
+        },
+        active:{
+            type:DataTypes.BOOLEAN,
+            defaultValue:false
+          }
     },
     {
         sequelize: database,

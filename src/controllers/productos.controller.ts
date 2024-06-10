@@ -15,7 +15,7 @@ export class ProductoController {
 
     public async getAllProducto(req: Request, res: Response) {
         try {
-            const producto: ProductoI[] = await Producto.findAll();
+            const producto: ProductoI[] = await Producto.findAll({where:{active:true}});
 
             res.json({ producto });
         } catch (error) {
@@ -28,7 +28,7 @@ export class ProductoController {
     public async getOneCliente(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const producto: Producto | null = await Producto.findOne({ where: { id } })
+            const producto: Producto | null = await Producto.findOne({ where: { id,active:true } })
 
             if (producto) {
                 res.status(200).json(producto)
@@ -59,7 +59,8 @@ export class ProductoController {
                 precio,
                 stockMin,
                 cantidad,
-                TipoProductoId
+                TipoProductoId,
+                active:true
             }
 
             const producto: ProductoI = await Producto.create({ ...body });
@@ -80,15 +81,36 @@ export class ProductoController {
             if (!productoExist) return res.status(500).json({ msg: "El Producto No existe" })
             await Producto.destroy(
                 {
-                    where: { id }
+                    where: { id,active:true }
                 }
             )
-            res.status(200).json({ msg: "Producto Eliminado" })
+        const producto: ProductoI | null = await Producto.findByPk(id);
+        if (producto) return res.status(200).json({ msg: "Producto Eliminado",producto })
         } catch (error) {
 
         }
 
     }
+    public async deleteProductoPatch(req: Request, res: Response) {
+        const { id } = req.params;
+    
+        try {
+            const productoExist: ProductoI | null = await Producto.findByPk(id);
+            if (!productoExist) {
+                return res.status(500).json({ msg: "El Producto No existe" });
+            }
+    
+            // Eliminación suave: Establece 'active' en false
+            await Producto.update({ active: false }, { where: { id } });
+
+            const producto: ProductoI | null = await Producto.findByPk(id);
+        if (producto) return res.status(200).json({ msg: "Producto ocultado (eliminación suave)" });
+        } catch (error) {
+            console.error("Error en deleteProducto:", error);
+            res.status(500).json({ mensaje: "Ocurrió un error en el servidor" });
+        }
+    }
+    
     public async updateProducto(req: Request, res: Response) {
         const { id } = req.params;
 
@@ -109,7 +131,8 @@ export class ProductoController {
                 precio,
                 stockMin,
                 cantidad,
-                TipoProductoId
+                TipoProductoId,
+                active:true
             }
 
             const productoExist: ProductoI | null = await Producto.findByPk(id)
