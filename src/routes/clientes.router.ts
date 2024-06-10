@@ -18,6 +18,6 @@ export class ClienteRoutes {
         this.router.post("/clientes",this.clienteController.createCliente)
         this.router.delete("/clientes/:id",this.clienteController.deleteCliente)
         this.router.patch("/clientes/:id",this.clienteController.deleteClientePatch)
-        this.router.put("/clientes/:id",this.clienteController.updateCliente)
+        this.router.patch("/clientes/update/:id",this.clienteController.updateCliente)
     }
 }

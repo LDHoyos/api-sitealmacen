@@ -13,7 +13,7 @@ export class VentaRoutes{
         this.router.get("/ventas",this.ventasController.getAllVenta)
         this.router.get("/ventas/:id",this.ventasController.getOneVenta)
         this.router.post("/ventas",this.ventasController.createVenta)
-        this.router.put("/ventas/:id",this.ventasController.updateVenta)
+        this.router.patch("/ventas/update/:id",this.ventasController.updateVenta)
         this.router.delete("/ventas/:id",this.ventasController.deleteVenta)
         this.router.patch("/ventas/:id",this.ventasController.deleteVentaPatch)
     }

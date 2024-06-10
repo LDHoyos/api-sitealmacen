@@ -107,7 +107,7 @@ export class ClienteController {
     
     public async updateCliente(req: Request, res: Response) {
         const { id } = req.params;
-    
+
         const {
             nombreCliente,
             direccionCliente,
@@ -117,9 +117,17 @@ export class ClienteController {
         } = req.body;
     
         try {
-            // Genera un hash de la nueva contraseña
-            const saltRounds = 10; // Número de rondas de sal (recomendado: 10)
-            const hashedPassword = await bcrypt.hash(passwordCliente, saltRounds);
+            const clienteExist: ClienteI | null = await Cliente.findByPk(id);
+    
+            if (!clienteExist) {
+                return res.status(500).json({ msg: "El Cliente No existe" });
+            }
+    
+            let hashedPassword = clienteExist.passwordCliente;
+    
+            if (passwordCliente) {
+                hashedPassword = await bcrypt.hash(passwordCliente, 10);
+            }
     
             let body: ClienteI = {
                 nombreCliente,
@@ -130,17 +138,10 @@ export class ClienteController {
                 active: true
             };
     
-            const clienteExist: ClienteI | null = await Cliente.findByPk(id);
-    
-            if (!clienteExist) {
-                return res.status(500).json({ msg: "El Cliente No existe" });
-            }
-    
             await Cliente.update(body, {
                 where: { id }
             });
-    
-            // Recupera el cliente actualizado
+
             const cliente: ClienteI | null = await Cliente.findByPk(id);
             if (cliente) {
                 return res.status(200).json({ cliente });
@@ -150,8 +151,5 @@ export class ClienteController {
             res.status(500).json({ mensaje: "Ocurrió un error en el servidor" });
         }
     }
-
-
-
     
 }
